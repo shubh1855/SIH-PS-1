@@ -1,0 +1,173 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kamrup Metropolitan",
+        "state": "Assam",
+        "station_id": "station_01",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[91.5, 26.0], [91.9, 26.0], [91.9, 26.3], [91.5, 26.3], [91.5, 26.0]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "East Khasi Hills",
+        "state": "Meghalaya",
+        "station_id": "station_02",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[91.6, 25.2], [92.1, 25.2], [92.1, 25.6], [91.6, 25.6], [91.6, 25.2]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Aizawl",
+        "state": "Mizoram",
+        "station_id": "station_03",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[92.6, 23.5], [93.0, 23.5], [93.0, 24.0], [92.6, 24.0], [92.6, 23.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kohima",
+        "state": "Nagaland",
+        "station_id": "station_04",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[94.0, 25.5], [94.4, 25.5], [94.4, 25.9], [94.0, 25.9], [94.0, 25.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Imphal West",
+        "state": "Manipur",
+        "station_id": "station_05",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[93.7, 24.6], [94.1, 24.6], [94.1, 25.0], [93.7, 25.0], [93.7, 24.6]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "West Tripura",
+        "state": "Tripura",
+        "station_id": "station_06",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[91.2, 23.5], [91.6, 23.5], [91.6, 24.0], [91.2, 24.0], [91.2, 23.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Papum Pare",
+        "state": "Arunachal Pradesh",
+        "station_id": "station_07",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[93.5, 27.0], [94.0, 27.0], [94.0, 27.4], [93.5, 27.4], [93.5, 27.0]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lunglei",
+        "state": "Mizoram",
+        "station_id": "station_08",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[92.5, 22.7], [93.0, 22.7], [93.0, 23.2], [92.5, 23.2], [92.5, 22.7]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "West Garo Hills",
+        "state": "Meghalaya",
+        "station_id": "station_09",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[89.8, 25.3], [90.4, 25.3], [90.4, 25.7], [89.8, 25.7], [89.8, 25.3]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "North Sikkim",
+        "state": "Sikkim",
+        "station_id": "station_10",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[88.4, 27.4], [88.9, 27.4], [88.9, 27.9], [88.4, 27.9], [88.4, 27.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Dibrugarh",
+        "state": "Assam",
+        "station_id": "station_11",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[94.8, 27.2], [95.3, 27.2], [95.3, 27.6], [94.8, 27.6], [94.8, 27.2]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "East Siang",
+        "state": "Arunachal Pradesh",
+        "station_id": "station_12",
+        "risk_level": "LOW",
+        "probability": 0.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[94.8, 28.0], [95.4, 28.0], [95.4, 28.5], [94.8, 28.5], [94.8, 28.0]]]
+      }
+    }
+  ]
+}

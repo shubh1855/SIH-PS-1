@@ -1,207 +1,308 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveAlerts, useSendAlert } from '../api/hooks';
+import { useActiveAlerts, useSendAlert, useRiskZones } from '../api/hooks';
 import SensorChart from './SensorChart';
 import toast from 'react-hot-toast';
 import type { DistrictProperties, RiskLevel } from '../types';
-
-const RISK_BADGE_COLORS: Record<string, { bg: string; text: string }> = {
-  LOW: { bg: '#166534', text: '#bbf7d0' },
-  HIGH: { bg: '#9a3412', text: '#fed7aa' },
-  CRITICAL: { bg: '#991b1b', text: '#fecaca' },
-};
+import {
+  ShieldAlert,
+  AlertTriangle,
+  ShieldCheck,
+  Send,
+  X,
+  MapPin,
+  Phone,
+  Radio,
+  FileText,
+  ChevronRight,
+  Activity,
+  CheckCircle2,
+} from 'lucide-react';
 
 interface SidebarProps {
   selectedDistrict: DistrictProperties | null;
+  onDistrictSelect: (district: DistrictProperties) => void;
   onClose: () => void;
 }
 
-export default function Sidebar({ selectedDistrict, onClose }: SidebarProps) {
-  const { t } = useTranslation();
+export default function Sidebar({ selectedDistrict, onDistrictSelect, onClose }: SidebarProps) {
+  const { t, i18n } = useTranslation();
   const { data: alerts } = useActiveAlerts();
+  const { data: zones } = useRiskZones();
   const sendAlert = useSendAlert();
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [showAlertForm, setShowAlertForm] = useState(false);
 
-  const handleSendAlert = () => {
-    if (!selectedDistrict || !phoneNumber) return;
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isAlertFormOpen, setIsAlertFormOpen] = useState(false);
+
+  const handleSendAlert = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDistrict || !phoneNumber.trim()) {
+      toast.error('Please specify a recipient mobile number');
+      return;
+    }
+
     sendAlert.mutate(
       {
         district: selectedDistrict.name,
         risk_level: selectedDistrict.risk_level as RiskLevel,
-        phone_number: phoneNumber,
+        phone_number: phoneNumber.trim(),
+        language: i18n.language.slice(0, 2),
       },
       {
         onSuccess: () => {
           toast.success(t('alert_sent'));
-          setShowAlertForm(false);
+          setIsAlertFormOpen(false);
           setPhoneNumber('');
         },
-        onError: () => {
-          toast.error(t('alert_failed'));
+        onError: (err) => {
+          toast.error(`${t('alert_failed')}: ${err.message}`);
         },
       }
     );
   };
 
+  const criticalAlerts = alerts?.filter((a) => a.risk_level === 'CRITICAL') || [];
+  const highAlerts = alerts?.filter((a) => a.risk_level === 'HIGH') || [];
+
   return (
-    <aside
-      style={{
-        width: '380px',
-        backgroundColor: '#0f172a',
-        color: '#e2e8f0',
-        overflowY: 'auto',
-        padding: '1rem',
-        borderLeft: '1px solid #1e293b',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-      }}
-    >
-      {/* Selected District Info */}
+    <aside className="sidebar-intel-panel">
+      {/* Selected District Details */}
       {selectedDistrict ? (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{selectedDistrict.name}</h2>
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: '#94a3b8' }}>
-                {selectedDistrict.state}
-              </p>
+        <div className="district-intel-view">
+          {/* Top Bar with Close */}
+          <div className="intel-header">
+            <div className="intel-title-block">
+              <div className="intel-state-row">
+                <MapPin size={13} className="text-cyan" />
+                <span className="intel-state-name">{selectedDistrict.state}</span>
+                <span className="station-code-chip">{selectedDistrict.station_id}</span>
+              </div>
+              <h2 className="intel-district-name">{selectedDistrict.name}</h2>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
-                fontSize: '1.25rem',
-              }}
+              className="intel-close-btn"
+              title={t('close')}
             >
-              ✕
+              <X size={17} />
             </button>
           </div>
 
-          {/* Risk Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                backgroundColor: RISK_BADGE_COLORS[selectedDistrict.risk_level]?.bg || '#334155',
-                color: RISK_BADGE_COLORS[selectedDistrict.risk_level]?.text || '#e2e8f0',
-              }}
-            >
-              {t(selectedDistrict.risk_level.toLowerCase())}
-            </span>
-            <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
-              {t('probability')}: {((selectedDistrict.probability || 0) * 100).toFixed(1)}%
-            </span>
-          </div>
-
-          {/* Sensor Chart */}
-          <SensorChart stationId={selectedDistrict.station_id} districtName={selectedDistrict.name} />
-
-          {/* Send Alert */}
-          {!showAlertForm ? (
-            <button
-              onClick={() => setShowAlertForm(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#dc2626',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-              }}
-            >
-              🔔 {t('send_alert')}
-            </button>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <input
-                type="tel"
-                placeholder={t('phone_number')}
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                style={{
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  border: '1px solid #475569',
-                  backgroundColor: '#1e293b',
-                  color: '#f8fafc',
-                  fontSize: '0.875rem',
-                }}
-              />
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  onClick={handleSendAlert}
-                  disabled={sendAlert.isPending}
-                  style={{
-                    flex: 1,
-                    padding: '0.5rem',
-                    backgroundColor: '#dc2626',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  {sendAlert.isPending ? '...' : t('send_alert')}
-                </button>
-                <button
-                  onClick={() => setShowAlertForm(false)}
-                  style={{
-                    padding: '0.5rem 0.75rem',
-                    backgroundColor: '#334155',
-                    color: '#e2e8f0',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  {t('close')}
-                </button>
+          {/* Threat Meter Banner */}
+          <div className={`threat-banner-card ${selectedDistrict.risk_level.toLowerCase()}`}>
+            <div className="threat-banner-top">
+              <div className="threat-badge">
+                {selectedDistrict.risk_level === 'CRITICAL' ? (
+                  <ShieldAlert size={16} />
+                ) : selectedDistrict.risk_level === 'HIGH' ? (
+                  <AlertTriangle size={16} />
+                ) : (
+                  <ShieldCheck size={16} />
+                )}
+                <span>{t(selectedDistrict.risk_level.toLowerCase())} Risk</span>
+              </div>
+              <div className="threat-percent">
+                {((selectedDistrict.probability || 0) * 100).toFixed(1)}% Hazard
               </div>
             </div>
-          )}
-        </>
+
+            {/* Probability Progress Bar */}
+            <div className="probability-track">
+              <div
+                className="probability-fill"
+                style={{
+                  width: `${Math.min(100, Math.max(5, (selectedDistrict.probability || 0) * 100))}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Sensor Telemetry Chart */}
+          <SensorChart
+            stationId={selectedDistrict.station_id}
+            districtName={selectedDistrict.name}
+          />
+
+          {/* Emergency Alert Dispatch Section */}
+          <div className="alert-dispatch-card">
+            <div className="dispatch-header">
+              <div className="dispatch-title">
+                <Radio size={14} className="text-rose" />
+                <span>Twilio Early Warning Dispatch</span>
+              </div>
+              <span className="dispatch-tag">SMS Gateway</span>
+            </div>
+
+            {!isAlertFormOpen ? (
+              <button
+                type="button"
+                onClick={() => setIsAlertFormOpen(true)}
+                className={`trigger-alert-btn ${selectedDistrict.risk_level.toLowerCase()}`}
+              >
+                <Send size={14} />
+                <span>{t('dispatch_sms')}</span>
+              </button>
+            ) : (
+              <form onSubmit={handleSendAlert} className="dispatch-form">
+                <div className="input-group">
+                  <span className="input-prefix">
+                    <Phone size={13} />
+                  </span>
+                  <input
+                    type="tel"
+                    placeholder="+91 9876543210"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                    className="dispatch-input"
+                    autoFocus
+                  />
+                </div>
+
+                {/* SMS Text Preview */}
+                <div className="sms-preview-bubble">
+                  <div className="sms-preview-title">
+                    <FileText size={12} />
+                    <span>{t('sms_preview')}</span>
+                  </div>
+                  <p className="sms-preview-text">
+                    ALERT: {selectedDistrict.risk_level} landslide risk in {selectedDistrict.name}. Evacuate vulnerable slopes immediately.
+                  </p>
+                </div>
+
+                <div className="dispatch-actions">
+                  <button
+                    type="submit"
+                    disabled={sendAlert.isPending}
+                    className="confirm-dispatch-btn"
+                  >
+                    <Send size={14} />
+                    <span>{sendAlert.isPending ? 'Broadcasting...' : t('send_alert')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAlertFormOpen(false)}
+                    className="cancel-dispatch-btn"
+                  >
+                    {t('close')}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       ) : (
-        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#64748b' }}>
-          <p style={{ fontSize: '1rem' }}>📍 {t('select_district')}</p>
+        /* Tactical Overview when no district is selected */
+        <div className="tactical-overview-view">
+          <div className="overview-hero">
+            <div className="overview-icon-ring">
+              <Activity size={24} className="text-cyan" />
+            </div>
+            <h3>Command Overview</h3>
+            <p>{t('select_district')}</p>
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="quick-stats-grid">
+            <div className="quick-stat-box red">
+              <span className="quick-stat-count">{criticalAlerts.length}</span>
+              <span className="quick-stat-lbl">Critical Zones</span>
+            </div>
+            <div className="quick-stat-box amber">
+              <span className="quick-stat-count">{highAlerts.length}</span>
+              <span className="quick-stat-lbl">High Alerts</span>
+            </div>
+            <div className="quick-stat-box green">
+              <span className="quick-stat-count">
+                {(zones?.features?.length || 12) - criticalAlerts.length - highAlerts.length}
+              </span>
+              <span className="quick-stat-lbl">Stable Zones</span>
+            </div>
+          </div>
+
+          {/* Monitored District Feed */}
+          <div className="districts-feed-card">
+            <div className="feed-header">
+              <span>{t('monitored_districts')}</span>
+              <span className="feed-count">{zones?.features?.length || 12} Nodes</span>
+            </div>
+            <div className="districts-list-scroll">
+              {zones?.features?.map((f) => {
+                const p = f.properties;
+                return (
+                  <div
+                    key={p.name}
+                    className={`district-list-row ${p.risk_level.toLowerCase()}`}
+                    onClick={() => onDistrictSelect(p)}
+                  >
+                    <div className="district-row-info">
+                      <span className="district-row-name">{p.name}</span>
+                      <span className="district-row-state">{p.state}</span>
+                    </div>
+                    <div className="district-row-risk">
+                      <span className={`risk-pill ${p.risk_level.toLowerCase()}`}>
+                        {p.risk_level}
+                      </span>
+                      <ChevronRight size={14} className="text-muted" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Active Alerts */}
-      <div style={{ borderTop: '1px solid #1e293b', paddingTop: '1rem' }}>
-        <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>⚠️ {t('active_alerts')}</h3>
+      {/* Active Threat Matrix List (Bottom Section) */}
+      <div className="threat-matrix-section">
+        <div className="threat-matrix-header">
+          <div className="matrix-title">
+            <ShieldAlert size={14} className="text-rose" />
+            <span>{t('active_threats')}</span>
+          </div>
+          <span className="matrix-count">
+            {(alerts?.length || 0)} Active
+          </span>
+        </div>
+
         {alerts && alerts.length > 0 ? (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {alerts.map((alert) => (
-              <li
-                key={alert.district}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  backgroundColor: '#1e293b',
-                  borderRadius: '6px',
-                  borderLeft: `3px solid ${alert.risk_level === 'CRITICAL' ? '#ef4444' : '#f97316'}`,
-                  fontSize: '0.875rem',
-                }}
-              >
-                <strong>{alert.district}</strong> — {alert.risk_level} ({(alert.probability * 100).toFixed(0)}%)
-              </li>
-            ))}
-          </ul>
+          <div className="threat-items-scroll">
+            {alerts.map((alert) => {
+              const districtName = alert.district || alert.district_name || 'District';
+              const targetFeature = zones?.features?.find(
+                (f) => f.properties.name.toLowerCase() === districtName.toLowerCase()
+              );
+
+              return (
+                <div
+                  key={districtName}
+                  className={`threat-item-card ${alert.risk_level.toLowerCase()}`}
+                  onClick={() => {
+                    if (targetFeature) onDistrictSelect(targetFeature.properties);
+                  }}
+                >
+                  <div className="threat-item-left">
+                    <span className="threat-pulse-dot" />
+                    <div>
+                      <div className="threat-item-district">{districtName}</div>
+                      <div className="threat-item-sub">
+                        Hazard Probability: {((alert.probability || 0) * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                  </div>
+                  <span className={`threat-tag ${alert.risk_level.toLowerCase()}`}>
+                    {alert.risk_level}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         ) : (
-          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>{t('no_alerts')}</p>
+          <div className="no-threats-card">
+            <CheckCircle2 size={16} className="text-emerald" />
+            <span>{t('no_alerts')}</span>
+          </div>
         )}
       </div>
     </aside>

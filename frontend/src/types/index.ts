@@ -42,6 +42,7 @@ export interface FieldReport {
 
 export interface ActiveAlert {
   district: string;
+  district_name?: string;
   risk_level: RiskLevel;
   probability: number;
 }

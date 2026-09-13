@@ -1,80 +1,284 @@
-import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-import { useRiskZones } from '../api/hooks';
+import { useState } from 'react';
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import { useRiskZones, useReports } from '../api/hooks';
 import type { DistrictProperties } from '../types';
 import type { Layer, LeafletMouseEvent } from 'leaflet';
+import { ShieldAlert, AlertTriangle, ShieldCheck, Camera, Layers, MapPin, Clock } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-const RISK_COLORS: Record<string, string> = {
-  LOW: '#22c55e',
-  HIGH: '#f97316',
-  CRITICAL: '#ef4444',
+const RISK_CONFIG: Record<string, { fill: string; stroke: string; label: string; glow: string }> = {
+  LOW: {
+    fill: 'rgba(34, 197, 94, 0.45)',
+    stroke: '#22c55e',
+    label: 'Low Risk',
+    glow: 'rgba(34, 197, 94, 0.6)',
+  },
+  HIGH: {
+    fill: 'rgba(249, 115, 22, 0.55)',
+    stroke: '#f97316',
+    label: 'High Risk',
+    glow: 'rgba(249, 115, 22, 0.7)',
+  },
+  CRITICAL: {
+    fill: 'rgba(239, 68, 68, 0.65)',
+    stroke: '#ef4444',
+    label: 'Critical Hazard',
+    glow: 'rgba(239, 68, 68, 0.9)',
+  },
 };
 
 const NER_CENTER: [number, number] = [26.0, 93.0];
 
+// Custom HTML DivIcon for Field Reports (No emojis, sleek radar beacon style)
+const createFieldReportIcon = (hasPhoto: boolean) =>
+  L.divIcon({
+    className: 'leaflet-custom-div-icon',
+    html: `
+      <div class="field-incident-pin ${hasPhoto ? 'has-photo' : ''}">
+        <div class="pin-ring"></div>
+        <div class="pin-core">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+            <circle cx="12" cy="13" r="3"/>
+          </svg>
+        </div>
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 28],
+    popupAnchor: [0, -28],
+  });
+
 interface MapViewProps {
   onDistrictSelect: (properties: DistrictProperties) => void;
+  selectedDistrict: DistrictProperties | null;
 }
 
-export default function MapView({ onDistrictSelect }: MapViewProps) {
-  const { data: geoJson, isLoading } = useRiskZones();
+export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewProps) {
+  const { data: geoJson, isLoading: isZonesLoading } = useRiskZones();
+  const { data: reports } = useReports();
+  const [filterRisk, setFilterRisk] = useState<'ALL' | 'CRITICAL' | 'HIGH'>('ALL');
+  const [tileMode, setTileMode] = useState<'voyager' | 'dark'>('dark');
 
   const getStyle = (feature: GeoJSON.Feature | undefined) => {
     const riskLevel = feature?.properties?.risk_level || 'LOW';
+    const isSelected = selectedDistrict && selectedDistrict.name === feature?.properties?.name;
+    const config = RISK_CONFIG[riskLevel] || RISK_CONFIG.LOW;
+
+    const isFilteredOut =
+      filterRisk === 'CRITICAL'
+        ? riskLevel !== 'CRITICAL'
+        : filterRisk === 'HIGH'
+        ? riskLevel === 'LOW'
+        : false;
+
     return {
-      fillColor: RISK_COLORS[riskLevel] || '#94a3b8',
-      weight: 2,
-      opacity: 1,
-      color: '#334155',
-      fillOpacity: 0.5,
+      fillColor: config.fill,
+      weight: isSelected ? 3.5 : 1.8,
+      opacity: isFilteredOut ? 0.2 : 0.9,
+      color: isSelected ? '#ffffff' : config.stroke,
+      fillOpacity: isFilteredOut ? 0.08 : isSelected ? 0.75 : 0.45,
+      dashArray: isSelected ? '4 2' : undefined,
     };
   };
 
   const onEachFeature = (feature: GeoJSON.Feature, layer: Layer) => {
     const props = feature.properties as DistrictProperties;
+    const config = RISK_CONFIG[props.risk_level] || RISK_CONFIG.LOW;
+    const probPct = Math.round((props.probability || 0) * 100);
 
-    // Tooltip on hover
+    // Rich custom tooltip
     layer.bindTooltip(
-      `<strong>${props.name}</strong><br/>
-       ${props.state}<br/>
-       Risk: ${props.risk_level}`,
-      { sticky: true }
+      `
+      <div class="map-tooltip-content">
+        <div class="map-tooltip-header">
+          <strong>${props.name}</strong>
+          <span class="map-tooltip-state">${props.state}</span>
+        </div>
+        <div class="map-tooltip-badge ${props.risk_level.toLowerCase()}">
+          ${config.label} · ${probPct}%
+        </div>
+      </div>
+      `,
+      {
+        sticky: true,
+        direction: 'top',
+        className: 'custom-map-tooltip',
+      }
     );
 
-    // Click to select
     layer.on({
-      click: (_e: LeafletMouseEvent) => {
+      mouseover: (e: LeafletMouseEvent) => {
+        const l = e.target;
+        l.setStyle({
+          weight: 3,
+          color: '#ffffff',
+          fillOpacity: 0.65,
+        });
+        l.bringToFront();
+      },
+      mouseout: (e: LeafletMouseEvent) => {
+        const l = e.target;
+        l.setStyle(getStyle(feature));
+      },
+      click: () => {
         onDistrictSelect(props);
       },
     });
   };
 
-  if (isLoading) {
-    return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        Loading map...
-      </div>
-    );
-  }
+  const tileUrl =
+    tileMode === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+  const tileAttribution =
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   return (
-    <MapContainer
-      center={NER_CENTER}
-      zoom={7}
-      style={{ flex: 1, minHeight: '100%' }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {geoJson && (
-        <GeoJSON
-          key={JSON.stringify(geoJson)}
-          data={geoJson}
-          style={getStyle}
-          onEachFeature={onEachFeature}
-        />
+    <div className="map-view-wrapper">
+      {isZonesLoading && (
+        <div className="map-loading-overlay">
+          <div className="map-spinner" />
+          <span>Synchronizing Geospatial Risk Layer...</span>
+        </div>
       )}
-    </MapContainer>
+
+      <MapContainer
+        center={NER_CENTER}
+        zoom={7}
+        minZoom={6}
+        maxZoom={12}
+        className="map-container-root"
+      >
+        <TileLayer attribution={tileAttribution} url={tileUrl} />
+
+        {/* District Hazard Boundary Polygons */}
+        {geoJson && (
+          <GeoJSON
+            key={`${JSON.stringify(geoJson)}-${filterRisk}-${selectedDistrict?.name}-${tileMode}`}
+            data={geoJson}
+            style={getStyle}
+            onEachFeature={onEachFeature}
+          />
+        )}
+
+        {/* Field Officer Incident Report Markers */}
+        {reports &&
+          reports.map((report) => {
+            const photoSrc = report.photo_url
+              ? report.photo_url.startsWith('http')
+                ? report.photo_url
+                : `${apiBaseUrl}${report.photo_url}`
+              : null;
+
+            return (
+              <Marker
+                key={report.id}
+                position={[report.latitude, report.longitude]}
+                icon={createFieldReportIcon(!!photoSrc)}
+              >
+                <Popup className="incident-popup-custom">
+                  <div className="incident-popup-card">
+                    <div className="incident-popup-header">
+                      <div className="incident-popup-badge">
+                        <Camera size={13} />
+                        <span>Field Incident #{report.id}</span>
+                      </div>
+                      <span className="incident-popup-time">
+                        <Clock size={11} />
+                        {new Date(report.created_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+
+                    {photoSrc && (
+                      <div className="incident-popup-img-wrapper">
+                        <img
+                          src={photoSrc}
+                          alt="Incident site evidence"
+                          className="incident-popup-img"
+                        />
+                      </div>
+                    )}
+
+                    <p className="incident-popup-desc">{report.description}</p>
+
+                    <div className="incident-popup-coords">
+                      <MapPin size={12} />
+                      <span>
+                        {report.latitude.toFixed(4)}°N, {report.longitude.toFixed(4)}°E
+                      </span>
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+      </MapContainer>
+
+      {/* Map Control Floating Toolbar (Top-Right) */}
+      <div className="map-toolbar">
+        <button
+          type="button"
+          onClick={() => setTileMode(tileMode === 'dark' ? 'voyager' : 'dark')}
+          className="map-tool-btn"
+          title="Toggle Map Style"
+        >
+          <Layers size={15} />
+          <span>{tileMode === 'dark' ? 'Dark Tactical' : 'Terrain Sat'}</span>
+        </button>
+      </div>
+
+      {/* Map Interactive Legend & Threat Filter (Bottom-Left) */}
+      <div className="map-legend-card">
+        <div className="legend-header">
+          <span className="legend-title">Hazard Severity Index</span>
+          <span className="legend-cycle">15m Refresh</span>
+        </div>
+
+        <div className="legend-items">
+          <div
+            className={`legend-item ${filterRisk === 'ALL' ? 'active' : ''}`}
+            onClick={() => setFilterRisk('ALL')}
+          >
+            <span className="legend-swatch low" />
+            <ShieldCheck size={13} className="text-emerald" />
+            <span>Low (Stable)</span>
+          </div>
+
+          <div
+            className={`legend-item ${filterRisk === 'HIGH' ? 'active' : ''}`}
+            onClick={() => setFilterRisk(filterRisk === 'HIGH' ? 'ALL' : 'HIGH')}
+          >
+            <span className="legend-swatch high" />
+            <AlertTriangle size={13} className="text-amber" />
+            <span>High Risk</span>
+          </div>
+
+          <div
+            className={`legend-item ${filterRisk === 'CRITICAL' ? 'active' : ''}`}
+            onClick={() => setFilterRisk(filterRisk === 'CRITICAL' ? 'ALL' : 'CRITICAL')}
+          >
+            <span className="legend-swatch critical" />
+            <ShieldAlert size={13} className="text-rose" />
+            <span>Critical Alert</span>
+          </div>
+
+          {reports && reports.length > 0 && (
+            <div className="legend-item report-legend">
+              <span className="legend-pin" />
+              <Camera size={13} className="text-cyan" />
+              <span>Incidents ({reports.length})</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

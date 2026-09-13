@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 
 NER_STATIONS = {
-    "station_01": "Kamrup",
+    "station_01": "Kamrup Metropolitan",
     "station_02": "East Khasi Hills",
     "station_03": "Aizawl",
     "station_04": "Kohima",
@@ -10,6 +10,10 @@ NER_STATIONS = {
     "station_06": "West Tripura",
     "station_07": "Papum Pare",
     "station_08": "Lunglei",
+    "station_09": "West Garo Hills",
+    "station_10": "North Sikkim",
+    "station_11": "Dibrugarh",
+    "station_12": "East Siang",
 }
 
 def generate_sensor_data(station_id: str, hours: int = 48) -> list[dict]:

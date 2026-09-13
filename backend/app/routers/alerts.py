@@ -17,8 +17,9 @@ def get_active_alerts():
     risk_store = get_risk_store()
     alerts = []
     for district, data in risk_store.items():
-        if data["risk_level"] in ["HIGH", "CRITICAL"]:
+        if data.get("risk_level") in ["HIGH", "CRITICAL"]:
             alerts.append({
+                "district": district,
                 "district_name": district,
                 "risk_level": data["risk_level"],
                 "probability": data["probability"]

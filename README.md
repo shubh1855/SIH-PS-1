@@ -27,22 +27,22 @@ AI-powered real-time landslide monitoring and prediction platform for India's No
 
 ## Tech Stack
 
-| Layer | Technology | Reason |
-|-------|-----------|--------|
-| Backend API | FastAPI (Python 3.11+) | ML in same process, async, auto Swagger docs |
-| ML Model | scikit-learn Random Forest | Interpretable, fast inference, mixed features |
-| Scheduling | APScheduler | Zero-config in-process background tasks |
-| Database | SQLite + SQLAlchemy | No setup, sufficient for reports + alert logs |
-| Spatial Data | Static GeoJSON files | No PostGIS complexity, sub-ms response |
-| Frontend | React + Vite + TypeScript | Fast dev cycle, type safety, hot reload |
-| Maps | React-Leaflet | Best docs, polygon + marker rendering |
-| Charts | Recharts | Clean React integration, minimal config |
-| Server State | TanStack React Query | Handles polling, caching, loading states |
-| Multilingual | i18next | Drop-in React library, JSON translation files |
-| SMS Alerts | Twilio Free Tier | Reliable delivery, free credits cover demo |
-| PWA / Offline | Vite PWA Plugin | Service worker + manifest auto-generated |
-| Backend Deploy | Railway | Auto-deploy from GitHub, free tier |
-| Frontend Deploy | Vercel | Auto-deploy from GitHub, instant CDN |
+| Layer           | Technology                 | Reason                                        |
+| --------------- | -------------------------- | --------------------------------------------- |
+| Backend API     | FastAPI (Python 3.11+)     | ML in same process, async, auto Swagger docs  |
+| ML Model        | scikit-learn Random Forest | Interpretable, fast inference, mixed features |
+| Scheduling      | APScheduler                | Zero-config in-process background tasks       |
+| Database        | SQLite + SQLAlchemy        | No setup, sufficient for reports + alert logs |
+| Spatial Data    | Static GeoJSON files       | No PostGIS complexity, sub-ms response        |
+| Frontend        | React + Vite + TypeScript  | Fast dev cycle, type safety, hot reload       |
+| Maps            | React-Leaflet              | Best docs, polygon + marker rendering         |
+| Charts          | Recharts                   | Clean React integration, minimal config       |
+| Server State    | TanStack React Query       | Handles polling, caching, loading states      |
+| Multilingual    | i18next                    | Drop-in React library, JSON translation files |
+| SMS Alerts      | Twilio Free Tier           | Reliable delivery, free credits cover demo    |
+| PWA / Offline   | Vite PWA Plugin            | Service worker + manifest auto-generated      |
+| Backend Deploy  | Railway                    | Auto-deploy from GitHub, free tier            |
+| Frontend Deploy | Vercel                     | Auto-deploy from GitHub, instant CDN          |
 
 ---
 
@@ -103,45 +103,45 @@ cd frontend
 npm run dev
 ```
 
-| URL | What |
-|-----|------|
-| http://localhost:5173 | Frontend app (map + sidebar) |
-| http://localhost:8000/docs | Swagger API docs (interactive) |
-| http://localhost:8000/redoc | ReDoc API docs |
+| URL                         | What                           |
+| --------------------------- | ------------------------------ |
+| http://localhost:5173       | Frontend app (map + sidebar)   |
+| http://localhost:8000/docs  | Swagger API docs (interactive) |
+| http://localhost:8000/redoc | ReDoc API docs                 |
 
 ### Environment Variables
 
 #### Backend (`backend/.env`)
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `TWILIO_ACCOUNT_SID` | Twilio account SID | No | _(logs to console if missing)_ |
-| `TWILIO_AUTH_TOKEN` | Twilio auth token | No | _(graceful fallback)_ |
-| `TWILIO_FROM_NUMBER` | Twilio sender phone number | No | — |
-| `IMD_API_URL` | IMD rainfall JSON endpoint | No | `https://mausam.imd.gov.in/...` |
-| `DATABASE_URL` | SQLite connection string | No | `sqlite:///./data.db` |
-| `ALERT_PHONE_NUMBERS` | Comma-separated phone numbers for auto-alerts | No | — |
+| Variable              | Description                                   | Required | Default                         |
+| --------------------- | --------------------------------------------- | -------- | ------------------------------- |
+| `TWILIO_ACCOUNT_SID`  | Twilio account SID                            | No       | _(logs to console if missing)_  |
+| `TWILIO_AUTH_TOKEN`   | Twilio auth token                             | No       | _(graceful fallback)_           |
+| `TWILIO_FROM_NUMBER`  | Twilio sender phone number                    | No       | —                               |
+| `IMD_API_URL`         | IMD rainfall JSON endpoint                    | No       | `https://mausam.imd.gov.in/...` |
+| `DATABASE_URL`        | SQLite connection string                      | No       | `sqlite:///./data.db`           |
+| `ALERT_PHONE_NUMBERS` | Comma-separated phone numbers for auto-alerts | No       | —                               |
 
 #### Frontend (`frontend/.env`)
 
-| Variable | Description | Default |
-|----------|-------------|---------|
+| Variable            | Description     | Default                 |
+| ------------------- | --------------- | ----------------------- |
 | `VITE_API_BASE_URL` | Backend API URL | `http://localhost:8000` |
 
 ---
 
 ## API Endpoints
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET` | `/` | Health check — `{status: "running"}` |
-| `GET` | `/risk/zones` | NER district GeoJSON enriched with current risk levels |
-| `GET` | `/risk/predict` | On-demand inference for `lat, lon, rainfall, moisture` |
-| `GET` | `/sensors/live` | 48-hour simulated sensor time-series for a station ID |
-| `GET` | `/alerts/active` | List districts currently at HIGH or CRITICAL risk |
-| `POST` | `/alerts/send-sms` | Trigger Twilio SMS for a district + risk level |
-| `POST` | `/reports` | Submit geo-tagged field report (multipart: photo + lat/lon + description) |
-| `GET` | `/reports` | List all submitted field reports with photo URLs |
+| Method | Route              | Description                                                               |
+| ------ | ------------------ | ------------------------------------------------------------------------- |
+| `GET`  | `/`                | Health check — `{status: "running"}`                                      |
+| `GET`  | `/risk/zones`      | NER district GeoJSON enriched with current risk levels                    |
+| `GET`  | `/risk/predict`    | On-demand inference for `lat, lon, rainfall, moisture`                    |
+| `GET`  | `/sensors/live`    | 48-hour simulated sensor time-series for a station ID                     |
+| `GET`  | `/alerts/active`   | List districts currently at HIGH or CRITICAL risk                         |
+| `POST` | `/alerts/send-sms` | Trigger Twilio SMS for a district + risk level                            |
+| `POST` | `/reports`         | Submit geo-tagged field report (multipart: photo + lat/lon + description) |
+| `GET`  | `/reports`         | List all submitted field reports with photo URLs                          |
 
 ---
 
@@ -249,18 +249,18 @@ SIH-ps-1/
 
 ## End-to-End Data Flow
 
-| Step | What Happens |
-|------|-------------|
-| 1. Browser Load | Vercel serves React app → calls `GET /risk/zones` |
-| 2. Map Render | Backend returns GeoJSON with risk levels → Leaflet renders colored polygons |
-| 3. Scheduler Tick | APScheduler fires every 15 min → pulls IMD rainfall + mock sensors → builds features |
-| 4. ML Inference | `predict_proba()` on all districts → updates in-memory risk dict → checks thresholds |
-| 5. Auto Alert | District crosses Critical → Twilio SMS fires to registered contacts |
-| 6. Frontend Sync | React Query refetch (30s) picks up new risk scores → map recolors |
-| 7. User Drill-Down | Click district → sidebar fetches `/sensors/live` → chart renders 48h trend |
-| 8. Manual Alert | Click Send Alert → `POST /alerts/send-sms` → SMS in <5s → toast confirmation |
-| 9. Field Report | Upload photo + pin → `POST /reports` → camera marker appears on map |
-| 10. Offline Queue | No connectivity → service worker serves cached app → report queued → flushed on reconnect |
+| Step               | What Happens                                                                              |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| 1. Browser Load    | Vercel serves React app → calls `GET /risk/zones`                                         |
+| 2. Map Render      | Backend returns GeoJSON with risk levels → Leaflet renders colored polygons               |
+| 3. Scheduler Tick  | APScheduler fires every 15 min → pulls IMD rainfall + mock sensors → builds features      |
+| 4. ML Inference    | `predict_proba()` on all districts → updates in-memory risk dict → checks thresholds      |
+| 5. Auto Alert      | District crosses Critical → Twilio SMS fires to registered contacts                       |
+| 6. Frontend Sync   | React Query refetch (30s) picks up new risk scores → map recolors                         |
+| 7. User Drill-Down | Click district → sidebar fetches `/sensors/live` → chart renders 48h trend                |
+| 8. Manual Alert    | Click Send Alert → `POST /alerts/send-sms` → SMS in <5s → toast confirmation              |
+| 9. Field Report    | Upload photo + pin → `POST /reports` → camera marker appears on map                       |
+| 10. Offline Queue  | No connectivity → service worker serves cached app → report queued → flushed on reconnect |
 
 ---
 
@@ -279,7 +279,3 @@ cd frontend && npx tsc --noEmit
 # Backend import check
 cd backend && uv run python -c "from app.main import app; print(app.title)"
 ```
-
-## License
-
-MIT

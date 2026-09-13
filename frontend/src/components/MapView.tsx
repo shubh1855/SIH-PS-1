@@ -128,13 +128,10 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
     });
   };
 
-  const tileUrl =
-    tileMode === 'dark'
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
   const tileAttribution =
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -152,9 +149,9 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
         zoom={7}
         minZoom={6}
         maxZoom={12}
-        className="map-container-root"
+        className={`map-container-root ${tileMode === 'dark' ? 'map-dark-mode' : ''}`}
       >
-        <TileLayer attribution={tileAttribution} url={tileUrl} />
+        <TileLayer attribution={tileAttribution} url={tileUrl} className={tileMode === 'dark' ? 'map-tiles-dark' : ''} />
 
         {/* District Hazard Boundary Polygons */}
         {geoJson && (

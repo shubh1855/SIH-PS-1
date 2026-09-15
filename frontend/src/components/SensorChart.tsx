@@ -24,9 +24,13 @@ interface CustomTooltipProps {
 
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
+    const formattedTime = label
+      ? new Date(label).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : '';
+
     return (
       <div className="chart-custom-tooltip">
-        <div className="tooltip-time">{label}</div>
+        <div className="tooltip-time">{formattedTime}</div>
         <div className="tooltip-row rain">
           <CloudRain size={13} />
           <span>Rainfall:</span>
@@ -127,7 +131,10 @@ export default function SensorChart({ stationId, districtName }: SensorChartProp
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.07)" vertical={false} />
             <XAxis
-              dataKey="time"
+              dataKey="rawTime"
+              tickFormatter={(val) =>
+                new Date(val).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }
               tick={{ fontSize: 10, fill: '#64748b' }}
               interval="preserveStartEnd"
               tickLine={false}

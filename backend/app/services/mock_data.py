@@ -34,9 +34,15 @@ def generate_sensor_data(station_id: str, hours: int = 48) -> list[dict]:
         soil_moisture_pct = min(100.0, 40 + (rainfall_mm * 1.5) + np.random.normal(0, 5))
         
         # Inject danger spike for specific stations in the last 12 hours
-        if station_id in ['station_06', 'station_07'] and i >= hours - 12:
-            rainfall_mm += np.random.uniform(70, 90)
-            soil_moisture_pct += np.random.uniform(30, 45)
+        if i >= hours - 12:
+            if station_id == 'station_06':
+                # CRITICAL risk (rain >= 65)
+                rainfall_mm += np.random.uniform(70, 90)
+                soil_moisture_pct += np.random.uniform(30, 45)
+            elif station_id == 'station_07':
+                # HIGH risk (rain >= 35, but misses CRITICAL limits)
+                rainfall_mm += np.random.uniform(35, 45)
+                soil_moisture_pct = min(74.0, soil_moisture_pct + np.random.uniform(10, 20))
             
         rainfall_mm = max(0.0, rainfall_mm)
         soil_moisture_pct = min(100.0, max(0.0, soil_moisture_pct))

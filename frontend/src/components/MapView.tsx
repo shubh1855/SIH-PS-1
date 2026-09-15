@@ -60,12 +60,22 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
   const { data: reports } = useReports();
   const [filterRisk, setFilterRisk] = useState<'ALL' | 'CRITICAL' | 'HIGH'>('ALL');
   const [tileMode, setTileMode] = useState<'voyager' | 'dark'>('dark');
+  const [showIncidents, setShowIncidents] = useState(true);
   const geoJsonVersion = useRef(0);
   const prevGeoJson = useRef(geoJson);
   if (geoJson !== prevGeoJson.current) {
     geoJsonVersion.current += 1;
     prevGeoJson.current = geoJson;
   }
+
+  const validReports =
+    reports?.filter(
+      (report) =>
+        report.latitude != null &&
+        report.longitude != null &&
+        !isNaN(report.latitude) &&
+        !isNaN(report.longitude)
+    ) || [];
 
   const getStyle = (feature: GeoJSON.Feature | undefined) => {
     const riskLevel = feature?.properties?.risk_level || 'LOW';
@@ -179,15 +189,7 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
         )}
 
         {/* Field Officer Incident Report Markers */}
-        {reports &&
-          reports
-            .filter((report) =>
-              report.latitude != null &&
-              report.longitude != null &&
-              !isNaN(report.latitude) &&
-              !isNaN(report.longitude)
-            )
-            .map((report) => {
+        {showIncidents && validReports.map((report) => {
             const photoSrc = report.photo_url
               ? report.photo_url.startsWith('http')
                 ? report.photo_url
@@ -289,11 +291,14 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
             <span>Critical Alert</span>
           </div>
 
-          {reports && reports.length > 0 && (
-            <div className="legend-item report-legend">
+          {validReports.length > 0 && (
+            <div 
+              className={`legend-item report-legend ${showIncidents ? 'active' : ''}`}
+              onClick={() => setShowIncidents(!showIncidents)}
+            >
               <span className="legend-pin" />
               <Camera size={13} className="text-cyan" />
-              <span>Incidents ({reports.length})</span>
+              <span>Incidents ({validReports.length})</span>
             </div>
           )}
         </div>

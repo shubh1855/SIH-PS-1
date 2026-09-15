@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useRiskZones, useReports } from '../api/hooks';
@@ -60,6 +60,12 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
   const { data: reports } = useReports();
   const [filterRisk, setFilterRisk] = useState<'ALL' | 'CRITICAL' | 'HIGH'>('ALL');
   const [tileMode, setTileMode] = useState<'voyager' | 'dark'>('dark');
+  const geoJsonVersion = useRef(0);
+  const prevGeoJson = useRef(geoJson);
+  if (geoJson !== prevGeoJson.current) {
+    geoJsonVersion.current += 1;
+    prevGeoJson.current = geoJson;
+  }
 
   const getStyle = (feature: GeoJSON.Feature | undefined) => {
     const riskLevel = feature?.properties?.risk_level || 'LOW';
@@ -158,19 +164,30 @@ export default function MapView({ onDistrictSelect, selectedDistrict }: MapViewP
       >
         <TileLayer attribution={tileAttribution} url={tileUrl} className={tileMode === 'dark' ? 'map-tiles-dark' : ''} />
 
-        {/* District Hazard Boundary Polygons */}
+        {/* District Hazard Boundary Circles */}
         {geoJson && (
           <GeoJSON
-            key={`${JSON.stringify(geoJson)}-${filterRisk}-${selectedDistrict?.name}-${tileMode}`}
+            key={`geo-v${geoJsonVersion.current}-${filterRisk}-${selectedDistrict?.name}-${tileMode}`}
             data={geoJson}
             style={getStyle}
             onEachFeature={onEachFeature}
+            pointToLayer={(feature, latlng) => {
+              const radius = feature.properties?.radius_meters || 20000;
+              return L.circle(latlng, { radius: radius });
+            }}
           />
         )}
 
         {/* Field Officer Incident Report Markers */}
         {reports &&
-          reports.map((report) => {
+          reports
+            .filter((report) =>
+              report.latitude != null &&
+              report.longitude != null &&
+              !isNaN(report.latitude) &&
+              !isNaN(report.longitude)
+            )
+            .map((report) => {
             const photoSrc = report.photo_url
               ? report.photo_url.startsWith('http')
                 ? report.photo_url

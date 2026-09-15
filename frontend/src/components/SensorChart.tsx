@@ -121,12 +121,12 @@ export default function SensorChart({ stationId, districtName }: SensorChartProp
           <LineChart data={chartData} margin={{ top: 12, right: 8, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="rainStroke" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#38bdf8" />
-                <stop offset="100%" stopColor="#0284c7" />
+                <stop offset="0%" stopColor="#fb923c" />
+                <stop offset="100%" stopColor="#9a3412" />
               </linearGradient>
               <linearGradient id="moistureStroke" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#c084fc" />
-                <stop offset="100%" stopColor="#9333ea" />
+                <stop offset="0%" stopColor="#fcd34d" />
+                <stop offset="100%" stopColor="#d97706" />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.07)" vertical={false} />
@@ -154,7 +154,7 @@ export default function SensorChart({ stationId, districtName }: SensorChartProp
               stroke="url(#rainStroke)"
               dot={false}
               strokeWidth={2.2}
-              activeDot={{ r: 5, fill: '#38bdf8', stroke: '#0f172a', strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: '#fb923c', stroke: '#1f1813', strokeWidth: 2 }}
             />
             <Line
               type="monotone"
@@ -163,7 +163,7 @@ export default function SensorChart({ stationId, districtName }: SensorChartProp
               stroke="url(#moistureStroke)"
               dot={false}
               strokeWidth={2.2}
-              activeDot={{ r: 5, fill: '#c084fc', stroke: '#0f172a', strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: '#fcd34d', stroke: '#1f1813', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>

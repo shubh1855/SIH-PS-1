@@ -3,16 +3,16 @@
    ========================================================================== */
 
 :root {
-  --bg-base: #060a12;
-  --bg-surface: #0c1322;
-  --bg-surface-elevated: #131c31;
-  --bg-card: #18233c;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-medium: rgba(255, 255, 255, 0.15);
+  --bg-base: #14100c;
+  --bg-surface: #1f1813;
+  --bg-surface-elevated: #2f251d;
+  --bg-card: #3b2f25;
+  --border-subtle: rgba(255, 230, 200, 0.08);
+  --border-medium: rgba(255, 230, 200, 0.15);
   
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-main: #fdfaf6;
+  --text-muted: #bdae9d;
+  --text-dim: #8b7d6e;
 
   --color-critical: #ef4444;
   --color-critical-bg: rgba(239, 68, 68, 0.15);
@@ -26,7 +26,7 @@
   --color-low-bg: rgba(16, 185, 129, 0.15);
   --color-low-glow: rgba(16, 185, 129, 0.35);
 
-  --color-cyan: #06b6d4;
+  --color-cyan: #d97706;
   --color-cyan-glow: rgba(6, 182, 212, 0.4);
 
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -74,7 +74,7 @@ html, body, #root {
 
 .header-container {
   height: 62px;
-  background: rgba(12, 19, 34, 0.95);
+  background: rgba(31, 24, 19, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
@@ -234,7 +234,7 @@ html, body, #root {
 }
 
 .lang-btn.active {
-  background: #0284c7;
+  background: #9a3412;
   color: #ffffff;
 }
 
@@ -242,7 +242,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  background: linear-gradient(135deg, #0284c7, #0369a1);
+  background: linear-gradient(135deg, #9a3412, #0369a1);
   color: #ffffff;
   border: 1px solid rgba(56, 189, 248, 0.3);
   padding: 0.45rem 0.95rem;
@@ -287,7 +287,7 @@ html, body, #root {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  background: rgba(12, 19, 34, 0.9);
+  background: rgba(31, 24, 19, 0.9);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-medium);
   padding: 0.6rem 1.2rem;
@@ -296,7 +296,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #38bdf8;
+  color: #fb923c;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
@@ -304,7 +304,7 @@ html, body, #root {
   width: 14px;
   height: 14px;
   border: 2px solid rgba(56, 189, 248, 0.2);
-  border-top-color: #38bdf8;
+  border-top-color: #fb923c;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -325,7 +325,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  background: rgba(12, 19, 34, 0.88);
+  background: rgba(31, 24, 19, 0.88);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-medium);
   color: var(--text-main);
@@ -349,7 +349,7 @@ html, body, #root {
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 500;
-  background: rgba(12, 19, 34, 0.88);
+  background: rgba(31, 24, 19, 0.88);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-medium);
   border-radius: 10px;
@@ -422,7 +422,7 @@ html, body, #root {
 
 /* Custom Tooltip on District Polygons */
 .custom-map-tooltip {
-  background: rgba(12, 19, 34, 0.95) !important;
+  background: rgba(31, 24, 19, 0.95) !important;
   border: 1px solid var(--border-medium) !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6) !important;
   border-radius: 8px !important;
@@ -431,7 +431,7 @@ html, body, #root {
 }
 
 .custom-map-tooltip::before {
-  border-top-color: rgba(12, 19, 34, 0.95) !important;
+  border-top-color: rgba(31, 24, 19, 0.95) !important;
 }
 
 .map-tooltip-content {
@@ -493,7 +493,7 @@ html, body, #root {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0284c7, #0369a1);
+  background: linear-gradient(135deg, #9a3412, #0369a1);
   border: 2px solid #ffffff;
   display: flex;
   align-items: center;
@@ -556,7 +556,7 @@ html, body, #root {
   gap: 0.35rem;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #38bdf8;
+  color: #fb923c;
 }
 
 .incident-popup-time {
@@ -818,8 +818,8 @@ html, body, #root {
   color: var(--text-main);
 }
 
-.stat-pill.rain strong { color: #38bdf8; }
-.stat-pill.moisture strong { color: #c084fc; }
+.stat-pill.rain strong { color: #fb923c; }
+.stat-pill.moisture strong { color: #fcd34d; }
 
 .chart-canvas-wrapper {
   margin: 0.25rem -0.5rem;
@@ -847,11 +847,11 @@ html, body, #root {
   border-radius: 50%;
 }
 
-.legend-dot.rain { background: #38bdf8; }
-.legend-dot.moisture { background: #c084fc; }
+.legend-dot.rain { background: #fb923c; }
+.legend-dot.moisture { background: #fcd34d; }
 
 .chart-custom-tooltip {
-  background: rgba(12, 19, 34, 0.95);
+  background: rgba(31, 24, 19, 0.95);
   border: 1px solid var(--border-medium);
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
@@ -874,8 +874,8 @@ html, body, #root {
   gap: 0.4rem;
 }
 
-.tooltip-row.rain { color: #38bdf8; }
-.tooltip-row.moisture { color: #c084fc; }
+.tooltip-row.rain { color: #fb923c; }
+.tooltip-row.moisture { color: #fcd34d; }
 
 .chart-loading-box, .chart-empty-box {
   padding: 2.5rem 1rem;
@@ -1350,7 +1350,7 @@ html, body, #root {
 }
 
 .modal-card {
-  background: #0f172a;
+  background: #1f1813;
   border: 1px solid var(--border-medium);
   border-radius: 12px;
   width: 440px;
@@ -1386,7 +1386,7 @@ html, body, #root {
   border-radius: 8px;
   background: rgba(2, 132, 199, 0.15);
   border: 1px solid rgba(2, 132, 199, 0.3);
-  color: #38bdf8;
+  color: #fb923c;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1448,7 +1448,7 @@ html, body, #root {
   gap: 0.3rem;
   background: rgba(2, 132, 199, 0.12);
   border: 1px solid rgba(2, 132, 199, 0.3);
-  color: #38bdf8;
+  color: #fb923c;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   font-size: 0.68rem;
@@ -1536,7 +1536,7 @@ html, body, #root {
 }
 
 .photo-upload-dropzone:hover {
-  border-color: #38bdf8;
+  border-color: #fb923c;
   background: rgba(56, 189, 248, 0.03);
 }
 
@@ -1595,7 +1595,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  background: linear-gradient(135deg, #0284c7, #0369a1);
+  background: linear-gradient(135deg, #9a3412, #0369a1);
   color: #ffffff;
   border: none;
   padding: 0.65rem;
@@ -1626,7 +1626,7 @@ html, body, #root {
 }
 
 .leaflet-control-zoom a {
-  background-color: #0f172a !important;
+  background-color: #1f1813 !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.15) !important;
 }
@@ -1695,7 +1695,7 @@ html, body, #root {
   z-index: 600;
   width: 32px;
   height: 48px;
-  background: rgba(12, 19, 34, 0.9);
+  background: rgba(31, 24, 19, 0.9);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-medium);
   border-left: none;

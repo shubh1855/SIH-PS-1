@@ -21,6 +21,7 @@ def create_report(
     photo: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
+
     photo_path = None
     if photo:
         os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -53,7 +54,7 @@ def create_report(
 
 @router.get("/", response_model=List[FieldReportResponse])
 def get_reports(db: Session = Depends(get_db)):
-    reports = db.query(FieldReport).all()
+    reports = db.query(FieldReport).order_by(FieldReport.created_at.desc()).all()
     results = []
     for report in reports:
         results.append(

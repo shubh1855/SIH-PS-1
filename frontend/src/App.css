@@ -242,7 +242,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  background: linear-gradient(135deg, #9a3412, #0369a1);
+  background: linear-gradient(135deg, #9a3412, #7c2d12);
   color: #ffffff;
   border: 1px solid rgba(56, 189, 248, 0.3);
   padding: 0.45rem 0.95rem;
@@ -255,7 +255,7 @@ html, body, #root {
 }
 
 .report-incident-btn:hover {
-  background: linear-gradient(135deg, #0369a1, #075985);
+  background: linear-gradient(135deg, #7c2d12, #431407);
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
   transform: translateY(-1px);
 }
@@ -493,7 +493,7 @@ html, body, #root {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #9a3412, #0369a1);
+  background: linear-gradient(135deg, #9a3412, #7c2d12);
   border: 2px solid #ffffff;
   display: flex;
   align-items: center;
@@ -1595,7 +1595,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  background: linear-gradient(135deg, #9a3412, #0369a1);
+  background: linear-gradient(135deg, #9a3412, #7c2d12);
   color: #ffffff;
   border: none;
   padding: 0.65rem;

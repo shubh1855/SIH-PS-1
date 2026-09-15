@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSubmitReport } from '../api/hooks';
 import toast from 'react-hot-toast';
@@ -26,8 +26,38 @@ export default function ReportForm({ onClose }: ReportFormProps) {
   const [description, setDescription] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [coordsInput, setCoordsInput] = useState('');
 
-  // Auto-detect GPS Coordinates
+  // Auto-detect GPS on modal open
+  useEffect(() => {
+    if (navigator.geolocation) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude.toFixed(5));
+          setLongitude(position.coords.longitude.toFixed(5));
+          setIsLocating(false);
+          toast.success('GPS coordinates auto-detected');
+        },
+        () => {
+          setIsLocating(false);
+          // Silently fail on auto-detect — user can still enter manually
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+  }, []);
+
+  // Cleanup blob URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  // Auto-detect GPS Coordinates (manual trigger)
   const handleDetectGPS = () => {
     if (!navigator.geolocation) {
       toast.error('Geolocation is not supported by your browser');
@@ -50,13 +80,33 @@ export default function ReportForm({ onClose }: ReportFormProps) {
     );
   };
 
+  // Quick-paste coordinates (supports "lat, lon" or "lat lon" format)
+  const handlePasteCoords = () => {
+    const trimmed = coordsInput.trim();
+    if (!trimmed) {
+      toast.error('Please paste coordinates (e.g. 25.5788, 91.8933)');
+      return;
+    }
+    const parts = trimmed.split(/[,\s]+/).map(Number);
+    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      setLatitude(parts[0].toFixed(5));
+      setLongitude(parts[1].toFixed(5));
+      setCoordsInput('');
+      toast.success('Coordinates parsed successfully');
+    } else {
+      toast.error('Invalid format. Use: 25.5788, 91.8933');
+    }
+  };
+
   // Handle Photo selection & preview
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     } else {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
   };
@@ -154,6 +204,27 @@ export default function ReportForm({ onClose }: ReportFormProps) {
                   className="modal-input"
                 />
               </div>
+            </div>
+
+            {/* Quick Paste Coordinates */}
+            <div className="coords-paste-row">
+              <input
+                type="text"
+                placeholder="Quick paste: 25.5788, 91.8933"
+                value={coordsInput}
+                onChange={(e) => setCoordsInput(e.target.value)}
+                className="modal-input"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handlePasteCoords();
+                  }
+                }}
+              />
+              <button type="button" onClick={handlePasteCoords} className="gps-btn">
+                <MapPin size={12} />
+                <span>Parse</span>
+              </button>
             </div>
           </div>
 
